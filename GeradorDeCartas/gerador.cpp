@@ -1,49 +1,29 @@
 #include <iostream>
 #include <fstream>
-#include "cartaHelper.h"
-using namespace std;
-
-// Prototipos
-	void gerarLinha(char c, unsigned short int tam);
+#include <limits>
+#include "cartas.h"
+#include "utilitarios.h"
 
 int main() {
-	
-	
-	ofstream fout;
-	ifstream fin;
-	 
-	carta cartas[32];
-	carta cartaAuxiliar;
-
-	unsigned short int numeroDeCartasNaLeitura = 0;
+	using namespace std;	
 	unsigned short int numeroDeCartasNaExecucao = 0;
 	unsigned short int opcao;
 	bool sair = false;
+	carta cartas[32];
+	char nome[20];
 
-	fin.open("cartas.deck", ios_base::in | ios_base::binary);
-	int c = 0;
-	while (fin.read((char*)&cartaAuxiliar, sizeof(carta))){
-		cartas[c] = cartaAuxiliar;
-		numeroDeCartasNaLeitura++;
-		c++;
-	}
-	fin.close();
-
-
-	numeroDeCartasNaExecucao = numeroDeCartasNaLeitura;
+	numeroDeCartasNaExecucao = Leitor("cartas.deck", cartas);
 	do {
 		cout << "Gerador de cartas \n";
 		gerarLinha('-', 20);
-
 		cout << "1) " << "Cadastrar\n";
 		cout << "2) " << "Alterar\n";
 		cout << "3) " << "Excluir\n";
 		cout << "4) " << "Listar\n";
 		cout << "5) " << "Sair\n";
-
 		cout << "Escolha uma opcao: ";
 		cin >> opcao;
-
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		switch (opcao)
 		{
 		case 1:
@@ -51,7 +31,7 @@ int main() {
 			cout << "\n Cadastrar carta: \n";
 			gerarLinha('-', 20);
 			cout << "Nome : ";
-			cin >> linguagem.nome;
+			cin.getline(linguagem.nome,80);
 			cout << "Popularidade : ";
 			cin >> linguagem.popularidade;
 			cout << "Tipagem : ";
@@ -62,117 +42,42 @@ int main() {
 			cin >> linguagem.desempenho;
 			cout << "Facilidade de uso : ";
 			cin >> linguagem.facilidadeDeUso;
-
-			if (numeroDeCartasNaExecucao == 0) {
-				cartas[0] = linguagem;
-				numeroDeCartasNaExecucao++;
-			}
-			else {
-				cartas[numeroDeCartasNaExecucao] = linguagem;
-				numeroDeCartasNaExecucao++;
-			}
+			numeroDeCartasNaExecucao = CadastrarCarta(linguagem, cartas, numeroDeCartasNaExecucao);
 			break;
 		case 2:
-			
-			cout << "\n Atualizar cartas \n";
+			cout << "\n Alterar cartas \n";
 			gerarLinha('-', 25);
-			for (int i = 0; i < numeroDeCartasNaExecucao; i++) {
-				cout << i + 1 << " ) " << cartas[i].nome << endl;
-			}
-
+			ListarCartas(cartas, numeroDeCartasNaExecucao);
 			cout << "\n Digite o numero da carta: ";
 			cin >> opcao;
-
-			if (opcao > numeroDeCartasNaExecucao) {
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			if (!validarOpcao(opcao, numeroDeCartasNaExecucao)) {
 				break;
 			}
-			cout << "\n Alterando carta " << cartas[opcao - 1].nome << endl;
-			gerarLinha('-', 20);
-			cout << "Nome : ";
-			cin >> cartas[opcao - 1].nome;
-			cout << "Popularidade : ";
-			cin >> cartas[opcao - 1].popularidade;
-			cout << "Tipagem : ";
-			cin >> cartas[opcao - 1].tipagem;
-			cout << "Sintaxe : ";
-			cin >> cartas[opcao - 1].sintaxe;
-			cout << "Desempenho : ";
-			cin >> cartas[opcao - 1].desempenho;
-			cout << "Facilidade de uso : ";
-			cin >> cartas[opcao - 1].facilidadeDeUso;
+			AlterarCarta(cartas, opcao);
 			break;
 		case 3:
-
-			carta escolhida;
-			carta ultima;
-
-			cout << "\n Excluir cartas \n";
+			cout << "\n Excluir carta \n";
 			gerarLinha('-', 25);
-			for (int i = 0; i < numeroDeCartasNaExecucao; i++) {
-				cout << i + 1 << " ) " << cartas[i].nome << endl;
-			}
-
+			ListarCartas(cartas, numeroDeCartasNaExecucao);
 			cout << "\n Digite o numero da carta: ";
 			cin >> opcao;
-
-			if (opcao > numeroDeCartasNaExecucao) {
+			if (!validarOpcao(opcao, numeroDeCartasNaExecucao)) {
 				break;
 			}
-
-			escolhida = cartas[opcao - 1];
-			ultima = cartas[numeroDeCartasNaExecucao-1];
-
-			cartas[opcao - 1] = ultima;
-			cartas[numeroDeCartasNaExecucao - 1] = escolhida;
-			numeroDeCartasNaExecucao--;
+			numeroDeCartasNaExecucao = ExcluirCarta(cartas, opcao, numeroDeCartasNaExecucao);
 			break;
 		case 4:
-
-			cout << "\nCartas no baralho: " << endl;
-			gerarLinha('-', 30);
-
-			for (int i = 0; i < numeroDeCartasNaExecucao; i++) {
-				cout << "#" << i + 1; 
-				cout.width(9);
-				cout << cartas[i].nome;\
-				cout.width(6);
-				cout << cartas[i].popularidade;
-				cout.width(6);
-				cout << cartas[i].tipagem;
-				cout.width(6);
-				cout << cartas[i].sintaxe;
-				cout.width(6);
-				cout << cartas[i].desempenho;
-				cout.width(6);
-				cout << cartas[i].facilidadeDeUso;
-				cout << endl;
-			}
-			cout << endl;
+			TabelaDeCartas(cartas, numeroDeCartasNaExecucao);
 			break;
 		case 5:
 			sair = true;
 			break;
 		default:
+			cout << "Opção inválida, tente novamente" << endl;
 			break;
 		}
 	} while (!sair);
-	
-	carta * cartasDin = new carta[numeroDeCartasNaExecucao];
-	for (int i = 0; i < numeroDeCartasNaExecucao; i++) {
-		cartasDin[i] = cartas[i];
-	}
-	fout.open("cartas.deck", ios_base::out | ios_base::binary);
-	for (int i = 0; i < numeroDeCartasNaExecucao; i++) {
-		fout.write((char*)&cartasDin[i], sizeof(carta));
-	}
-	fout.close();
-	delete[] cartasDin;
+	Gravador("cartas.deck", cartas, numeroDeCartasNaExecucao);
 	return 0;
-}
-
-void gerarLinha(char c, unsigned short int tam) {
-	for (int i = 0; i <= tam; i++) {
-		cout << c;
-	}
-	cout << "\n";
 }

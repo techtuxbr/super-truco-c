@@ -115,11 +115,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="cartaHelper.cpp" />
+    <ClCompile Include="cartas.cpp" />
     <ClCompile Include="gerador.cpp" />
+    <ClCompile Include="utilitarios.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="cartaHelper.h" />
+    <ClInclude Include="cartas.h" />
+    <ClInclude Include="utilitarios.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
